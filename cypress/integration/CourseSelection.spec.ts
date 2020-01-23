@@ -10,6 +10,9 @@ context('Course selection', () => {
   it ('can add a course by pressing enter', () => {
     // Add COMP1511
     cy.get('#course-selection-autocomplete')
+      .click()
+    cy.dataCy('autocomplete-option')
+    cy.get('#course-selection-autocomplete')
       .type('comp1511{enter}')
     cy.get('#course-display').should('contain.text', 'COMP1511')
   })
