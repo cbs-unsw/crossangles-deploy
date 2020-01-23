@@ -2,6 +2,8 @@
 
 context('Course selection', () => {
   beforeEach(() => {
+    cy.server()
+    cy.route('/data.json', 'fixture:data-s2-2019.json')
     cy.visit('/')
   })
 
