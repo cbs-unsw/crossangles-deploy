@@ -7,6 +7,8 @@ orbs:
   node: circleci/node@1.1.6
 jobs:
   unit-test:
+    executor:
+      name: node/default
     steps:
       - checkout
       - node/with-cache:
