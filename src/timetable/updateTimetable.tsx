@@ -20,6 +20,7 @@ export interface UpdateTimetableArgs {
   sessionManager: SessionManager,
   selection: Selection,
   searchConfig?: GeneticSearchOptionalConfig,
+  cleanUpdate?: boolean,
 }
 
 export interface Selection {
@@ -44,12 +45,15 @@ export interface TimetableSearchConfig {
 
 
 export const updateTimetable = async (
-  args: UpdateTimetableArgs
+  args: UpdateTimetableArgs,
 ) => {
-  const { dispatch, sessionManager, selection, searchConfig } = args;
+  let { dispatch, sessionManager, selection, searchConfig, cleanUpdate } = args;
   const { chosen, custom, additional, events, webStreams, options } = selection;
   const courses = [ ...chosen, ...custom, ...additional ];
-  const fixedSessions = sessionManager.getFixedSessions(courses, events);
+  let fixedSessions: LinkedSession[] = [];
+  if (!cleanUpdate) {
+    fixedSessions = sessionManager.getFixedSessions(courses, events);
+  }
 
   const newTimetable = doTimetableSearch({
     fixedSessions,
