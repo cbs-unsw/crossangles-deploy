@@ -138,5 +138,42 @@
         "times": [{ "time": "H14" }]
       }
     ]
+  },
+  {
+    "code": "Street Talk",
+    "name": "Street Talk",
+    "isAdditional": true,
+    "streams": [
+      {
+        "component": "Street Talk",
+        "full": false,
+        "enrols": [0, 0],
+        "times": [{ "time": "M15" }]
+      },
+      {
+        "component": "Street Talk",
+        "full": false,
+        "enrols": [0, 0],
+        "times": [{ "time": "T15" }]
+      },
+      {
+        "component": "Street Talk",
+        "full": false,
+        "enrols": [0, 0],
+        "times": [{ "time": "W15" }]
+      },
+      {
+        "component": "Street Talk",
+        "full": false,
+        "enrols": [0, 0],
+        "times": [{ "time": "H15" }]
+      },
+      {
+        "component": "Street Talk",
+        "full": false,
+        "enrols": [0, 0],
+        "times": [{ "time": "F15" }]
+      }
+    ]
   }
 ]
