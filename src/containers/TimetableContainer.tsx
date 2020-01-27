@@ -18,8 +18,9 @@ import { linkStream, LinkedStream } from '../state/Stream';
 import { Options } from '../state/Options';
 import { ColourMap } from '../state/Colours';
 import SessionManager, { SessionManagerData } from '../components/Timetable/SessionManager';
-import { updateTimetable, doTimetableSearch, setNotice, setSuggestionScore } from '../actions';
+import { setTimetable, setNotice, setSuggestionScore } from '../actions';
 import { undoTimetable, redoTimetable } from '../actions/history';
+import { doTimetableSearch } from '../timetable/updateTimetable';
 
 
 const styles = (theme: Theme) => createStyles({
@@ -128,7 +129,7 @@ class TimetableContainer extends PureComponent<Props> {
     } else {
       const sessionManager = new SessionManager(this.state.timetable);
       sessionManager.update(newTimetable.timetable, [], newTimetable.score);
-      await this.props.dispatch(updateTimetable(sessionManager.data));
+      await this.props.dispatch(setTimetable(sessionManager.data));
 
       if (newTimetable.unplaced && newTimetable.unplaced.length > 0) {
         await this.props.dispatch(setNotice('Some classes have been displaced'));
@@ -179,7 +180,7 @@ class TimetableContainer extends PureComponent<Props> {
   }
 
   private async handleTimetableCallback (timetable: SessionManagerData) {
-    await this.props.dispatch(updateTimetable(timetable));
+    await this.props.dispatch(setTimetable(timetable));
     this.recommendTimetable();
   }
 }

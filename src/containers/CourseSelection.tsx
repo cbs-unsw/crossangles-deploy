@@ -10,15 +10,10 @@ import {
   toggleWebStream,
   toggleEvent,
   toggleOption,
-  doTimetableSearch,
-  setNotice,
   addCustom,
   removeCustom,
   updateCustom,
-  setSuggestionScore,
-  clearNotice,
 } from '../actions';
-import { updateTimetable } from '../actions';
 import { WithDispatch } from '../typeHelpers';
 
 // Styles
@@ -27,7 +22,6 @@ import withStyles, { WithStyles } from "@material-ui/core/styles/withStyles";
 import createStyles from "@material-ui/core/styles/createStyles";
 
 // Components
-import Button from '@material-ui/core/Button';
 import Autocomplete from '../components/Autocomplete';
 import CourseList from '../components/CourseList';
 import GeneralOptions from '../components/GeneralOptions';
@@ -38,7 +32,7 @@ import { CourseMap, CourseData, CourseId, getCourseId } from '../state/Course';
 import { Options, OptionName } from '../state/Options';
 import { ColourMap, Colour } from '../state/Colours';
 import { ClassTime } from '../state/Stream';
-import { LinkedSession } from '../state/Session';
+import { updateTimetable } from '../timetable/updateTimetable';
 
 const styles = (theme: Theme) => createStyles({
   spaceAbove: {
@@ -127,12 +121,12 @@ class CourseSelection extends Component<Props, State> {
     );
   }
 
-  private get allChosenCourses () {
-    return [
-      ...this.props.chosen,
-      ...this.props.custom,
-      ...this.props.additional,
-    ];
+  private editCustomCourse = (course: CourseData) => {
+    this.setState({ editingCourse: course });
+  }
+
+  private handleClearEditing = () => {
+    this.setState({ editingCourse: null });
   }
 
   private chooseCourse = async (course: CourseData) => {
@@ -215,90 +209,12 @@ class CourseSelection extends Component<Props, State> {
   }
 
   private updateTimetable = async (sessionManager: SessionManager) => {
-    const fixedSessions = sessionManager.getFixedSessions(this.allChosenCourses, this.props.events);
-
-    const newTimetable = doTimetableSearch({
-      fixedSessions,
-      courses: this.allChosenCourses,
-      events: this.props.events,
-      webStreams: this.props.webStreams,
-      options: this.props.options,
+    const { chosen, additional, custom, events, options, webStreams } = this.props;
+    await updateTimetable({
+      dispatch: this.props.dispatch,
+      sessionManager,
+      selection: { chosen, additional, custom, events, options, webStreams },
     });
-
-    if (newTimetable === null) {
-      // Displace some classes and display a warning
-      await this.props.dispatch(setNotice('There was a problem generating a timetable'));
-    } else {
-      sessionManager.update(newTimetable.timetable, fixedSessions, newTimetable.score);
-      await this.props.dispatch(updateTimetable(sessionManager.data));
-
-      await this.notifyUnplaced(newTimetable.unplaced || []);
-
-      if (fixedSessions.length > 0) {
-        // Try to calculate a more optimal timetable
-        this.recommendTimetable();
-      } else {
-        // Clear outdated recommendation
-        await this.props.dispatch(setSuggestionScore(null));
-      }
-    }
-  }
-
-  private notifyUnplaced = async (unplaced: LinkedSession[]) => {
-    const count = unplaced.length;
-    const includeFull = this.props.options.includeFull;
-    if (count > 0) {
-      const es = count !== 1 ? 'es' : '';
-      const messages = [`${count} class${es} could not be placed anywhere.`];
-      const actions: React.ReactNode[] = [];
-
-      if (!includeFull) {
-        messages.push('Already enrolled? Try including full classes');
-        actions.push((
-          <Button
-            color="secondary"
-            variant="text"
-            key="go"
-            onClick={() => {
-              this.props.dispatch(clearNotice);
-              this.toggleOption('includeFull');
-            }}
-          >
-            Retry
-          </Button>
-        ));
-      }
-
-      const message = messages.join('\n');
-      await this.props.dispatch(setNotice(message, actions));
-    }
-  }
-
-  private editCustomCourse = (course: CourseData) => {
-    this.setState({ editingCourse: course });
-  }
-
-  private handleClearEditing = () => {
-    this.setState({ editingCourse: null });
-  }
-
-  private recommendTimetable = async () => {
-    const newTimetable = doTimetableSearch({
-      fixedSessions: [],
-      courses: this.allChosenCourses,
-      events: this.props.events,
-      webStreams: this.props.webStreams,
-      options: this.props.options,
-      maxSpawn: 1,
-      searchConfig: {
-        maxTime: 100,
-      },
-    });
-
-    console.log('suggestion', newTimetable);
-    if (newTimetable !== null) {
-      await this.props.dispatch(setSuggestionScore(newTimetable.score));
-    }
   }
 }
 
