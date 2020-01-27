@@ -52,7 +52,7 @@ export const updateTimetable = async (
   const courses = [ ...chosen, ...custom, ...additional ];
   let fixedSessions: LinkedSession[] = [];
   if (!cleanUpdate) {
-    fixedSessions = sessionManager.getFixedSessions(courses, events);
+    fixedSessions = sessionManager.getTouchedSessions(courses, events);
   }
 
   const newTimetable = doTimetableSearch({
