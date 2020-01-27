@@ -93,7 +93,7 @@ export function additional (
 ): CourseId[] {
   switch (action.type) {
     case SET_COURSE_DATA:
-      return action.courses.filter(c => c.isAdditional).map(c => getCourseId(c));
+      return action.courses.filter(c => c.isAdditional && c.autoSelect).map(c => getCourseId(c));
   }
 
   return state;
