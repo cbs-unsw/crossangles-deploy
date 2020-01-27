@@ -12,6 +12,7 @@ export const NoticeDisplay = ({
   onSnackbarClose,
 }: Props) => {
   const { message = '', actions = null } = notice || {};
+  const paragraphs = message.split(/\n/g);
   return (
     <Snackbar
       key={message || 'snackbar'}
@@ -24,7 +25,9 @@ export const NoticeDisplay = ({
       autoHideDuration={6000}
       message={(
         <div id="message-id">
-          {message}
+          {paragraphs.map((text, i) => (
+            <p key={`message-p${i}`}>{text}</p>
+          ))}
         </div>
       )}
       action={actions}
