@@ -62,6 +62,7 @@ export const updateTimetable = async (
     webStreams,
     options,
     searchConfig,
+    ignoreCache: cleanUpdate,
   });
 
   if (newTimetable === null) {
