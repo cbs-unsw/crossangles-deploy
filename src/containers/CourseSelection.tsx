@@ -16,6 +16,7 @@ import {
   removeCustom,
   updateCustom,
   setSuggestionScore,
+  clearNotice,
 } from '../actions';
 import { updateTimetable } from '../actions';
 import { WithDispatch } from '../typeHelpers';
@@ -26,6 +27,7 @@ import withStyles, { WithStyles } from "@material-ui/core/styles/withStyles";
 import createStyles from "@material-ui/core/styles/createStyles";
 
 // Components
+import Button from '@material-ui/core/Button';
 import Autocomplete from '../components/Autocomplete';
 import CourseList from '../components/CourseList';
 import GeneralOptions from '../components/GeneralOptions';
@@ -36,6 +38,7 @@ import { CourseMap, CourseData, CourseId, getCourseId } from '../state/Course';
 import { Options, OptionName } from '../state/Options';
 import { ColourMap, Colour } from '../state/Colours';
 import { ClassTime } from '../state/Stream';
+import { LinkedSession } from '../state/Session';
 
 const styles = (theme: Theme) => createStyles({
   spaceAbove: {
@@ -229,9 +232,7 @@ class CourseSelection extends Component<Props, State> {
       sessionManager.update(newTimetable.timetable, fixedSessions, newTimetable.score);
       await this.props.dispatch(updateTimetable(sessionManager.data));
 
-      if (newTimetable.unplaced && newTimetable.unplaced.length > 0) {
-        await this.props.dispatch(setNotice('Some classes have been displaced'));
-      }
+      await this.notifyUnplaced(newTimetable.unplaced || []);
 
       if (fixedSessions.length > 0) {
         // Try to calculate a more optimal timetable
@@ -240,6 +241,36 @@ class CourseSelection extends Component<Props, State> {
         // Clear outdated recommendation
         await this.props.dispatch(setSuggestionScore(null));
       }
+    }
+  }
+
+  private notifyUnplaced = async (unplaced: LinkedSession[]) => {
+    const count = unplaced.length;
+    const includeFull = this.props.options.includeFull;
+    if (count > 0) {
+      const es = count !== 1 ? 'es' : '';
+      const messages = [`${count} class${es} could not be placed anywhere.`];
+      const actions: React.ReactNode[] = [];
+
+      if (!includeFull) {
+        messages.push('Already enrolled? Try including full classes');
+        actions.push((
+          <Button
+            color="secondary"
+            variant="text"
+            key="go"
+            onClick={() => {
+              this.props.dispatch(clearNotice);
+              this.toggleOption('includeFull');
+            }}
+          >
+            Retry
+          </Button>
+        ));
+      }
+
+      const message = messages.join('\n');
+      await this.props.dispatch(setNotice(message, actions));
     }
   }
 

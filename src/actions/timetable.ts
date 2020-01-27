@@ -1,13 +1,13 @@
 import { AdditionalEvent } from '../state';
 import { search, TimetableSearchResult } from '../timetable/timetableSearch';
-import { coursesToComponents } from '../timetable/coursesToComponents';
+import { coursesToComponents, Component } from '../timetable/coursesToComponents';
 import { SessionManagerData } from '../components/Timetable/SessionManager';
 import { LinkedSession } from '../state/Session';
 import { CourseData, CourseId } from '../state/Course';
 import { Options } from '../state/Options';
 import { UserAction } from '.';
 import { GeneticSearchOptionalConfig } from '../timetable/GeneticSearch';
-// import { getSessions } from '../state/Stream';
+import { linkStream } from '../state/Stream';
 
 export const UPDATE_SESSION_MANAGER = 'UPDATE_SESSION_MANAGER';
 export interface SessionManagerAction extends UserAction {
@@ -60,7 +60,7 @@ export function doTimetableSearch (config: UpdateTimetableConfig): TimetableSear
   );
 
   // Check for impossible timetables
-  // const fullSessions = components.filter(c => c.streams.length === 0);
+  const fullComponents = components.filter(c => c.streams.length === 0);
   components = components.filter(c => c.streams.length > 0);
 
   let result: ReturnType<typeof search>;
@@ -77,23 +77,24 @@ export function doTimetableSearch (config: UpdateTimetableConfig): TimetableSear
   // Add fixed sessions
   result.timetable.push(...fixed);
 
-  // Add full sessions
-  // const unplaced = getFullSessions(courses);
-  // timetable.push(...unplaced);
+  // Add sessions from first stream of any completely full components
+  const unplaced = getFullStreamSessions(fullComponents);
 
-  return { ...result, unplaced: [] };
+  return { ...result, unplaced };
 }
 
-// function getFullSessions (courses: CourseData[]) {
-//   const fullSessions: SessionData[] = [];
-//   for (let course of courses) {
-//     const fullStreams = course.streams.filter(s => s.full);
-//     if (fullStreams.length) {
-//       fullSessions.push(...getSessions(course, fullStreams[0]));
-//     }
-//   }
-//   return fullSessions;
-// }
+function getFullStreamSessions (fullComponents: Component[]) {
+  const fullSessions: LinkedSession[] = [];
+
+  for (const component of fullComponents) {
+    const course = component.course;
+    const firstStream = course.streams[0];
+    const linkedStream = linkStream(course, firstStream);
+    fullSessions.push(...linkedStream.sessions);
+  }
+
+  return fullSessions;
+}
 
 export function updateTimetable (newTimetable: SessionManagerData): SessionManagerAction {
   return {
