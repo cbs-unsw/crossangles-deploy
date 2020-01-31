@@ -1,25 +1,11 @@
-import { CourseData } from "../state/Course";
-import { MinistryMeta } from "../state/Meta";
+import { UNSWCrawler } from "./UNSWCrawler";
+import { CampusCrawler } from "./CampusCrawler";
 
-export type Campus = "unsw" | "usyd";
-
-export interface CampusData {
-  data: CourseData[],
-  meta: MinistryMeta,
-  source: string,
-  output: string,
-}
-
-export const getCampusData = (campus: Campus): CampusData => {
+export const getCampusCrawler = (campus: string): CampusCrawler | null => {
   switch (campus) {
     case "unsw":
-      return {
-        data: require('../../src/assets/additional-cbs.json'),
-        meta: require('../../src/assets/info-cbs.json'),
-        source: 'https://nss.cse.unsw.edu.au/sitar/classes2019',
-        output: './public/data.json',
-      }
+      return new UNSWCrawler();
   }
 
-  throw new Error(`Unknown campus: ${campus}`);
+  return null;
 }
