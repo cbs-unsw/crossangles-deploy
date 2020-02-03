@@ -1,11 +1,19 @@
-import { UNSWCrawler } from "./UNSWCrawler";
-import { CampusCrawler } from "./CampusCrawler";
+import { UNSWCrawler } from './UNSWCrawler';
+import { CampusCrawler } from './CampusCrawler';
 
-export const getCampusCrawler = (campus: string): CampusCrawler | null => {
-  switch (campus) {
-    case "unsw":
+class CampusError extends Error {
+  readonly name = 'CampusError';
+
+  toString () {
+    return `${this.name}: ${this.message}`;
+  }
+}
+
+export const getCampusCrawler = (campus: string): CampusCrawler => {
+  switch (campus.toLowerCase()) {
+    case 'unsw':
       return new UNSWCrawler();
   }
 
-  return null;
+  throw new CampusError(`No crawler found for ${campus}`);
 }

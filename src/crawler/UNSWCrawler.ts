@@ -1,16 +1,17 @@
-import { CampusCrawler } from "./CampusCrawler";
-import { CourseData, courseSort } from "../state/Course";
-import { parseCourse, parseStream, removeDuplicateStreams } from "./parsing";
+import { CampusCrawler } from './CampusCrawler';
+import { CourseData, courseSort } from '../state/Course';
+import { parseCourse, parseStream, removeDuplicateStreams } from './parsing';
 
 const TABLE_END_COUNT = 1;
 const COURSE_HEADING_COUNT = 2;
 const REGULAR_CELL_COUNT = 8;
+const MAX_FACULTIES = Infinity;
 
 export class UNSWCrawler extends CampusCrawler {
-  readonly additional = require('../../src/assets/additional-cbs.json');
-  readonly meta = require('../../src/assets/info-cbs.json');
-  readonly source = process.env.DATA_SOURCE_UNSW!;
-  readonly output = process.env.OUTPUT_FILE_UNSW!;
+  readonly additional = require(process.env.UNSW_ADDITIONAL_DATA_FILE!);
+  readonly meta = require(process.env.UNSW_INFO_FILE!);
+  readonly source = process.env.UNSW_DATA_SOURCE!;
+  readonly output = process.env.UNSW_OUTPUT_FILE!;
   readonly name = 'UNSW';
 
   async crawl () {
@@ -29,6 +30,8 @@ export class UNSWCrawler extends CampusCrawler {
       const matchingLinks = $('a').filter((i: number, e: any) => linkRegex.test($(e).attr('href')));
       links.push(...matchingLinks.map((i: number, e: any): string => $(e).attr('href')));
     });
+
+    links.length = Math.min(links.length, MAX_FACULTIES);
 
     this.log(`found ${links.length} faculy pages`);
     return links;

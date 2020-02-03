@@ -1,32 +1,25 @@
 require('dotenv').config();
 
-import { writeFileSync } from 'fs';
 import { getCampusCrawler } from './campus';
-import { CampusCrawler } from './CampusCrawler';
+import { getWriter } from './output';
 
-const crawlCampus = async (crawler: CampusCrawler) => {
+const crawlCampus = async (campus: string) => {
+  const crawler = getCampusCrawler(campus);
+  const output = getWriter(crawler.output);
   const data = await crawler.crawl();
-
-  writeFileSync(crawler.output, data, 'utf-8');
-  crawler.log(`written to "${crawler.output}"`);
+  output.write(data);
+  crawler.log(`written to ${output}`);
 }
 
 const main = async () => {
   const args = process.argv.slice(2);
   const promises: Promise<void>[] = [];
   for (let campus of args) {
-    const crawler = getCampusCrawler(campus);
-    if (crawler) {
-      const promise = crawlCampus(crawler);
-      promise.catch(e => {
-        crawler.error(e);
-        process.exitCode = 1;
-      });
-      promises.push(promise);
-    } else {
-      console.warn(`[WARNING] No crawler found for ${campus}`);
+    const promise = crawlCampus(campus).catch(e => {
+      console.error(e + '');
       process.exitCode = 1;
-    }
+    });
+    promises.push(promise);
   }
 
   for (const promise of promises) {

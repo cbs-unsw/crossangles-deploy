@@ -1,6 +1,6 @@
 import * as Apify from 'apify';
-import { CourseData } from "../state/Course";
-import { MinistryMeta, Meta } from "../state/Meta";
+import { CourseData } from '../state/Course';
+import { MinistryMeta, Meta } from '../state/Meta';
 
 export interface CampusData {
   courses: CourseData[],
@@ -49,9 +49,5 @@ export abstract class CampusCrawler {
 
   log (...args: any[]) {
     console.log(`${this.name}:`, ...args);
-  }
-
-  error (...args: any[]) {
-    console.error(`${this.name}:`, ...args);
   }
 }
