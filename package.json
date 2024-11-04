@@ -5,5 +5,5 @@
     "deploy": "./deploy/deploy.sh"
   },
   "license": "UNLICENSED",
-  "dependencies": {}
+  "packageManager": "yarn@4.5.1"
 }
