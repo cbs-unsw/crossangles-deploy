@@ -2,7 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$(realpath "$0")")"
 
-COMMAND_LIST="ci-install|install|build|lint|test|run|scrape"
+COMMAND_LIST="install|build|lint|test|run|scrape"
 COMMAND=$1
 
 if [[ ! $COMMAND =~ ^$COMMAND_LIST$ ]]; then
@@ -19,11 +19,6 @@ run_for_each () {
     )
   done
 }
-
-
-if [[ $COMMAND == ci-install ]]; then
-  run_for_each yarn install --frozen-lockfile
-fi
 
 if [[ $COMMAND == install ]]; then
   run_for_each yarn install

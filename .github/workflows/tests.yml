@@ -24,7 +24,7 @@ jobs:
         node-version: 20
 
     - name: Install dependencies
-      run: ./ci.sh ci-install
+      run: ./ci.sh install
 
     - name: Lint code
       run: ./ci.sh lint
