@@ -215,6 +215,12 @@ export class TimetableScraper {
             weeks,
           };
 
+          const toAppend = findDuplicateTimeInCourse(stream, timeObject);
+          if (toAppend) {
+            toAppend.weeks = `${toAppend.weeks},${weeks}`;
+            continue;
+          }
+
           if (!shouldSkipTime(timeObject)) {
             stream.times.push(timeObject);
           }
@@ -432,4 +438,8 @@ export function isOnWeekend(time: string) {
 
 export function isCourseEnrolment(data: StreamTableData) {
   return data.Activity.toLowerCase() === 'course enrolment';
+}
+
+export function findDuplicateTimeInCourse(stream: StreamData, timeObject: ClassTime) {
+  return stream.times.find(obj => obj.time === timeObject.time);
 }
