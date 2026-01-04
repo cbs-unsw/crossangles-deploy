@@ -304,13 +304,8 @@ export function shouldSkipStream(data: StreamTableData) {
 }
 
 export function shouldSkipTime(time: ClassTime) {
-  if (weeksAreOutsideTerm(time.weeks)) {
-    return true;
-  }
-
-  if (isIntensive(time.time)) {
-    return true;
-  }
+  if (weeksAreOutsideTerm(time.weeks)) return true;
+  if (isIntensive(time.time)) return true;
 
   return false;
 }
